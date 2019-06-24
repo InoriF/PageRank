@@ -5,8 +5,8 @@ def Readfile():
     pageX=[]#存储转移矩阵的列号
     pageY=[]#存储转移矩阵的行号
     allpages=[]#存储所有的页面
-    f=open('WikiData.txt','r')#只读形式按行读取数据集
-    #f=open('1.txt','r')#测试用小数据集
+    #f=open('WikiData.txt','r')#只读形式按行读取数据集
+    f=open('3.txt','r')#测试用小数据集
     line=f.readline()
     while line:
         tempX,tempY=line.strip().split()#读取文件进两个元组
@@ -165,10 +165,11 @@ def Calc_Deadend(rank_alive,deadendX,deadendY,deadendV):
     for i in range(len(deadendX)):
         rank_all[int(deadendY[i])]+=rank_all[int(deadendX[i])]*deadendV[i]
     print(sum(rank_all))
+    print(rank_all)
     return rank_all
 
 
-
+#使用强连通图的出度来算
 if __name__ == "__main__":
     pageX,pageY,allpages=Readfile()
     value=Value(pageX,pageY)
@@ -177,13 +178,19 @@ if __name__ == "__main__":
     rank_alive=Pagerank(pageX,pageY,now_live_pages,valueafterkill,blocklist)
     rank_all=Calc_Deadend(rank_alive,deadendX,deadendY,deadendV)
     
+    multi=1/sum(rank_all)
+    for i in range(len(rank_all)):
+        rank_all[i]*=multi
+    print(rank_all)
+    print(sum(rank_all))
+
     record_top100=[]
     record_top100_index=[]
     for j in range(100):
         max=rank_all[0]
         max_i=0
         for i in range(len(rank_all)): 
-            if(rank_all[i]>max) and rank_all[i] not in record_top100:
+            if(rank_all[i]>max) and i not in record_top100_index:
                 max=rank_all[i]
                 max_i=i
         record_top100.append(max) 
@@ -191,7 +198,38 @@ if __name__ == "__main__":
     
     for i in range(100):
         print (str(record_top100_index[i])+"："+str(record_top100[i]))
-        
+
+'''
+#使用原本图的出度来算
+if __name__ == "__main__":
+    pageX,pageY,allpages=Readfile()
+    value=Value(pageX,pageY)
+    pageX,pageY,now_live_pages,deadend,deadendX,deadendY,deadendV=Kill_Deadend(pageX,pageY,allpages,value)
+    blocklist,valueafterkill=Value_and_Index(pageX,pageY)
+    rank_alive=Pagerank(pageX,pageY,now_live_pages,value,blocklist)
+    rank_all=Calc_Deadend(rank_alive,deadendX,deadendY,deadendV)
+    
+    multi=1/sum(rank_all)
+    for i in range(len(rank_all)):
+        rank_all[i]*=multi
+    print(rank_all)
+    print(sum(rank_all))
+
+    record_top100=[]
+    record_top100_index=[]
+    for j in range(100):
+        max=rank_all[0]
+        max_i=0
+        for i in range(len(rank_all)): 
+            if(rank_all[i]>max) and i not in record_top100_index:
+                max=rank_all[i]
+                max_i=i
+        record_top100.append(max) 
+        record_top100_index.append(max_i)
+    
+    for i in range(100):
+        print (str(record_top100_index[i])+"："+str(record_top100[i]))
+'''
 
     #print(rank_all)
     #print(sum(rank_all))
